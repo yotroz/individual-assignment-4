@@ -10,22 +10,36 @@ def upload_graph():
     return jsonify(body)
     
 
-@server.route('/http://127.0.0.1:5000/degrees_of_separation/<origin>/<destination>', methods=['POST'])
-def get_degrees_of_separation(graph, origin, destination): 
+@server.route('/degrees-of-separation/<origin>/<destination>', methods=['PUT'])
+def find_path(origin, destination, graph='', path=[]):
+        
     
-    def find_path(graph, start, end, path=[], weight=0):
-    path = path + [{"node": start, "weight": weight}]
-    if start == end:
-        return path
-    if not start in graph:
-        return None
-    for conn in graph[start]:
-        if conn["node"] not in path:
-            newpath = find_path(graph, conn["node"], end, path, conn["weight"])
-            if newpath is not None:
-                return newpath
+    graph = request.get_json()
+    
+    graph = jsonify(graph)
+    
+#    graph = dict(graph)
 
+    # first thing, we add the current start to the path
+    path = path + [origin]
     
     
-    print(graph, origin, destination)
+    # then , if the start is the same as the end, we have finished, we can
+    # return the path!
+    if origin == destination:
+        return jsonify(path)
+    
+    # Also, if the start is *not* in the graph, we return None
+    if origin not in graph:
+        return jsonify(None)
+
+    # Here we iterate over all of start's edges
+    for node in graph[origin]:
+        # if the edge is not in the path (we haven't visited it yet)
+        if node not in path:
+            # We try to find its path to end
+            newpath = find_path(node, destination, graph, path)
+
+            # and, if it didn't return None, we return the path 
+            if newpath is not None:
 server.run()
