@@ -42,4 +42,11 @@ def find_path(origin, destination, graph='', path=[]):
 
             # and, if it didn't return None, we return the path 
             if newpath is not None:
+                            # We try to find its path to end
+            newpath = find_path(node, destination, graph, path)
+
+            # and, if it didn't return None, we return the path 
+                if newpath is not None:
+                    return jsonify(newpath)
+
 server.run()
